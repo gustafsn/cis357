@@ -7,26 +7,47 @@
 //
 
 import UIKit
-import UnitConverter.UnitsAndModes
 
-class ViewController: UIViewController, UITextFieldDelegate {
+//protocol SettingsViewControllerDelegate {
+//    func settingsChanged(fromUnits: LengthUnit, toUnits: LengthUnit)
+//    func settingsChanged(fromUnits: VolumeUnit, toUnits: VolumeUnit)
+//}
+
+class ViewController: UIViewController, UITextFieldDelegate, SettingsViewControllerDelegate {
+    func settingsChanged(fromUnits: LengthUnit, toUnits: LengthUnit) {
+//        self.toUnits.text = toUnits
+//        self.from
+    }
+    
+    func settingsChanged(fromUnits: VolumeUnit, toUnits: VolumeUnit) {
+        <#code#>
+    }
+    
+    
 
     @IBOutlet weak var toUnits: UILabel!
     @IBOutlet weak var fromUnits: UILabel!
     @IBOutlet weak var fromField: UITextField!
     @IBOutlet weak var toField: UITextField!
     
-    var modeCounter = 0    
+    var mode = CalculatorMode.Length
+    var direction: String = ""
+    var cancel = false
     
     @IBAction func modeButton(_ sender: Any) {
         self.dismissKeyboard()
-        if modeCounter > 1{
-            modeCounter = 0
+        if mode == CalculatorMode.Length {
+            mode = CalculatorMode.Volume
+            fromUnits.text = "Liters"
+            toUnits.text = "Gallons"
         }
-        if modeCounter == 0{
-            
+        else {
+            mode = CalculatorMode.Length
+            fromUnits.text = "Yards"
+            toUnits.text = "Meters"
         }
-        modeCounter+=1
+        self.fromField.text = ""
+        self.toField.text = ""
         
     }
     @IBAction func clearButton(_ sender: Any) {
@@ -35,16 +56,53 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.dismissKeyboard()
     }
     @IBAction func calcButton(_ sender: Any) {
-        if self.toField.text != ""{
-            fromField.text = String(Int(toField.text!)! + 2)
+        var fieldDecVal: Double
+        if self.toField.text == "" && self.fromField.text == "" {
+        }
+        else if self.toField.text != ""{
+            direction = "from"
+            fieldDecVal = Double(self.toField.text!)!
+            self.fromField.text = String(convert(fieldDecVal))
         }
         else if self.fromField.text != ""{
-            self.toField.text = String(Int(self.fromField.text!)! + 2)
+            direction = "to"
+            fieldDecVal = Double(self.fromField.text!)!
+            self.toField.text = String(convert(fieldDecVal))
         }
         self.dismissKeyboard()
     }
     
+    func convert(_ fieldVal: Double) -> Double {
+        if mode == CalculatorMode.Length {
+            if direction == "from" {
+                var lenKey = LengthConversionKey(toUnits: LengthUnit(rawValue: self.fromUnits.text!)!, fromUnits: LengthUnit(rawValue: self.toUnits.text!)!)
+                return fieldVal * lengthConversionTable[lenKey]!
+            }
+            else if direction == "to" {
+                var lenKey = LengthConversionKey(toUnits: LengthUnit(rawValue: self.toUnits.text!)!, fromUnits: LengthUnit(rawValue: self.fromUnits.text!)!)
+                return fieldVal * lengthConversionTable[lenKey]!
+            }
+        }
+        else if mode == CalculatorMode.Volume {
+            if direction == "from" {
+                var volKey = VolumeConversionKey(toUnits: VolumeUnit(rawValue: self.fromUnits.text!)!, fromUnits: VolumeUnit(rawValue: self.toUnits.text!)!)
+                return fieldVal * volumeConversionTable[volKey]!
+            }
+            else if direction == "to" {
+                var volKey = VolumeConversionKey(toUnits: VolumeUnit(rawValue: self.toUnits.text!)!, fromUnits: VolumeUnit(rawValue: self.fromUnits.text!)!)
+                return fieldVal * volumeConversionTable[volKey]!
+            }
+        }
+        return fieldVal
+    }
   
+    @IBAction func cancel(segue: UIStoryboardSegue) {
+        cancel = true;
+    }
+    
+    @IBAction func save(segue: UIStoryboardSegue) {
+        cancel = false;
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,94 +149,4 @@ extension ViewController{
         }
     }
 }
-
-//  UnitsAndModes.swift
-//  HW3-Solution
-//
-//  Created by Jonathan Engelsma on 9/7/18.
-//  Copyright © 2018 Jonathan Engelsma. All rights reserved.
-//
-
-enum CalculatorMode : String {
-    case Length
-    case Volume
-}
-enum LengthUnit : String, CaseIterable {
-    case Meters = "Meters"
-    case Yards = "Yards"
-    case Miles = "Miles"
-}
-
-enum VolumeUnit : String, CaseIterable {
-    case Liters = "Liters"
-    case Gallons = "Gallons"
-    case Quarts = "Quarts"
-}
-
-struct LengthConversionKey : Hashable {
-    var toUnits : LengthUnit
-    var fromUnits : LengthUnit
-}
-
-// The following tables let you convert between units with a simple dictionary lookup. For example, assume
-// that the variable fromVal holds the value you are converting from:
-//
-//      let convKey =  LengthConversionKey(toUnits: .Miles, fromUnits: .Meters)
-//      let toVal = fromVal * lengthConversionTable[convKey]!;
-
-let lengthConversionTable : Dictionary<LengthConversionKey, Double> = [
-    LengthConversionKey(toUnits: .Meters, fromUnits: .Meters) : 1.0,
-    LengthConversionKey(toUnits: .Meters, fromUnits: .Yards) : 0.9144,
-    LengthConversionKey(toUnits: .Meters, fromUnits: .Miles) : 1609.34,
-    LengthConversionKey(toUnits: .Yards, fromUnits: .Meters) : 1.09361,
-    LengthConversionKey(toUnits: .Yards, fromUnits: .Yards) : 1.0,
-    LengthConversionKey(toUnits: .Yards, fromUnits: .Miles) : 1760.0,
-    LengthConversionKey(toUnits: .Miles, fromUnits: .Meters) : 0.000621371,
-    LengthConversionKey(toUnits: .Miles, fromUnits: .Yards) : 0.000568182,
-    LengthConversionKey(toUnits: .Miles, fromUnits: .Miles) : 1.0
-]
-
-struct VolumeConversionKey : Hashable {
-    var toUnits : VolumeUnit
-    var fromUnits : VolumeUnit
-}
-
-let volumeConversionTable : Dictionary<VolumeConversionKey, Double> = [
-    VolumeConversionKey(toUnits: .Liters, fromUnits: .Liters) : 1.0,
-    VolumeConversionKey(toUnits: .Liters, fromUnits: .Gallons) : 3.78541,
-    VolumeConversionKey(toUnits: .Liters, fromUnits: .Quarts) : 0.946353,
-    VolumeConversionKey(toUnits: .Gallons, fromUnits: .Liters) : 0.264172,
-    VolumeConversionKey(toUnits: .Gallons, fromUnits: .Gallons) : 1.0,
-    VolumeConversionKey(toUnits: .Gallons, fromUnits: .Quarts) : 0.25,
-    VolumeConversionKey(toUnits: .Quarts, fromUnits: .Liters) : 1.05669,
-    VolumeConversionKey(toUnits: .Quarts, fromUnits: .Gallons) : 4.0,
-    VolumeConversionKey(toUnits: .Quarts, fromUnits: .Quarts) : 1.0
-]
-
-// To support Swift 4.2's iteration over enum... see
-// source: https://stackoverflow.com/questions/24007461/how-to-enumerate-an-enum-with-string-type
-#if !swift(>=4.2)
-public protocol CaseIterable {
-    associatedtype AllCases: Collection where AllCases.Element == Self
-    static var allCases: AllCases { get }
-}
-extension CaseIterable where Self: Hashable {
-    static var allCases: [Self] {
-        return [Self](AnySequence { () -> AnyIterator<Self> in
-            var raw = 0
-            var first: Self?
-            return AnyIterator {
-                let current = withUnsafeBytes(of: &raw) { $0.load(as: Self.self) }
-                if raw == 0 {
-                    first = current
-                } else if current == first {
-                    return nil
-                }
-                raw += 1
-                return current
-            }
-        })
-    }
-}
-#endif
 

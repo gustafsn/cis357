@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		33D6C948233BA9A9000B3B74 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33D6C947233BA9A9000B3B74 /* SettingsViewController.swift */; };
 		6ABBCF70233AF99900096BAF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABBCF6F233AF99900096BAF /* AppDelegate.swift */; };
 		6ABBCF72233AF99900096BAF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABBCF71233AF99900096BAF /* ViewController.swift */; };
 		6ABBCF75233AF99900096BAF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6ABBCF73233AF99900096BAF /* Main.storyboard */; };
@@ -36,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		33D6C947233BA9A9000B3B74 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		6ABBCF6C233AF99900096BAF /* UnitConverter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitConverter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ABBCF6F233AF99900096BAF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6ABBCF71233AF99900096BAF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 				6ABBCF9D233B22C500096BAF /* UnitsAndModes.swift */,
 				6ABBCF9F233B23D800096BAF /* DecimalMinusTextField.swift */,
 				6ABBCF73233AF99900096BAF /* Main.storyboard */,
+				33D6C947233BA9A9000B3B74 /* SettingsViewController.swift */,
 				6ABBCF76233AF99A00096BAF /* Assets.xcassets */,
 				6ABBCF78233AF99A00096BAF /* LaunchScreen.storyboard */,
 				6ABBCF7B233AF99A00096BAF /* Info.plist */,
@@ -265,6 +268,7 @@
 				6ABBCF9E233B22C500096BAF /* UnitsAndModes.swift in Sources */,
 				6ABBCF72233AF99900096BAF /* ViewController.swift in Sources */,
 				6ABBCFA0233B23D800096BAF /* DecimalMinusTextField.swift in Sources */,
+				33D6C948233BA9A9000B3B74 /* SettingsViewController.swift in Sources */,
 				6ABBCF70233AF99900096BAF /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
