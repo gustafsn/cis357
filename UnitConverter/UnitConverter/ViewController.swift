@@ -2,31 +2,18 @@
 //  ViewController.swift
 //  UnitConverter
 //
-//  Created by user159631 on 9/24/19.
-//  Copyright © 2019 user159631. All rights reserved.
+//  Created by Quinn Meagher.
+//  Copyright © 2019 Quinn Meagher. All rights reserved.
 //
 
 import UIKit
-
-//protocol SettingsViewControllerDelegate {
-//    func settingsChanged(fromUnits: LengthUnit, toUnits: LengthUnit)
-//    func settingsChanged(fromUnits: VolumeUnit, toUnits: VolumeUnit)
-//}
-
-class ViewController: UIViewController, UITextFieldDelegate, SettingsViewControllerDelegate {
-    func settingsChanged(fromUnits: LengthUnit, toUnits: LengthUnit) {
-//        self.toUnits.text = toUnits
-//        self.from
-    }
-    
-    func settingsChanged(fromUnits: VolumeUnit, toUnits: VolumeUnit) {
-        <#code#>
-    }
-    
+									
+class ViewController: UIViewController, SettingsViewControllerDelegate {
     
 
-    @IBOutlet weak var toUnits: UILabel!
-    @IBOutlet weak var fromUnits: UILabel!
+    @IBOutlet weak var toUnits: DecimalMinusTextField!
+    @IBOutlet weak var fromUnits: DecimalMinusTextField!
+    
     @IBOutlet weak var fromField: UITextField!
     @IBOutlet weak var toField: UITextField!
     
@@ -34,20 +21,28 @@ class ViewController: UIViewController, UITextFieldDelegate, SettingsViewControl
     var direction: String = ""
     var cancel = false
     
+    var fromLen = LengthUnit.Yards
+    var toLen = LengthUnit.Meters
+    
+    var fromVol = VolumeUnit.Liters
+    var toVol = VolumeUnit.Gallons
+    
     @IBAction func modeButton(_ sender: Any) {
         self.dismissKeyboard()
         if mode == CalculatorMode.Length {
+            self.fromUnits.text! = "\(self.fromVol)"
+            self.toUnits.text! = "\(self.toVol)"
+            fromField.placeholder = "Enter a Volume in \(self.fromVol)"
+            fromField.placeholder = "Enter a Volume in \(self.toVol)"
             mode = CalculatorMode.Volume
-            fromUnits.text = "Liters"
-            toUnits.text = "Gallons"
         }
         else {
+            self.fromUnits.text! = "\(self.fromLen)"
+            self.toUnits.text! = "\(self.toLen)"
+            fromField.placeholder = "Enter a Volume in \(self.fromLen)"
+            fromField.placeholder = "Enter a Volume in \(self.toLen)"
             mode = CalculatorMode.Length
-            fromUnits.text = "Yards"
-            toUnits.text = "Meters"
         }
-        self.fromField.text = ""
-        self.toField.text = ""
         
     }
     @IBAction func clearButton(_ sender: Any) {
@@ -56,46 +51,74 @@ class ViewController: UIViewController, UITextFieldDelegate, SettingsViewControl
         self.dismissKeyboard()
     }
     @IBAction func calcButton(_ sender: Any) {
-        var fieldDecVal: Double
-        if self.toField.text == "" && self.fromField.text == "" {
+        if(self.mode == .Length){
+            if (self.fromField.text != ""){
+                let fromVal = Double(self.fromField.text!)
+                let convKey = LengthConversionKey(toUnits: toLen, fromUnits: fromLen)
+                let toVal = fromVal! * lengthConversionTable[convKey]!
+                self.toField.text = String(toVal)
+            } else if(self.toField.text != ""){
+                let toVal = Double(self.toField.text!)
+                let convKey = LengthConversionKey(toUnits: fromLen, fromUnits: toLen)
+                let fromVal = toVal! * lengthConversionTable[convKey]!
+                self.fromField.text = String(fromVal)
+            } else {
+                self.fromField.text = String(0)
+                self.toField.text = String(0)
+            }
+        } else {
+            if (self.fromField.text != ""){
+                let fromVal = Double(self.fromField.text!)
+                let convKey = VolumeConversionKey(toUnits: toVol, fromUnits: fromVol)
+                let toVal = fromVal! *
+                    volumeConversionTable[convKey]!
+                self.toField.text = String(toVal)
+            } else if(self.toField.text != "") {
+                let toVal = Double(self.toField.text!)
+                let convKey = VolumeConversionKey(toUnits: fromVol, fromUnits: toVol)
+                let fromVal = toVal! * volumeConversionTable[convKey]!
+                self.fromField.text = String(fromVal)
+            } else {
+                self.fromField.text = String(0)
+                self.toField.text = String(0)
+            }
+        }  
+    }
+
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let settings = segue.destination.children[0] as? SettingsViewController{
+            settings.delegate = self
+            settings.mode = self.mode
+            settings.fromLen = self.fromLen
+            settings.toLen = self.toLen
+            settings.fromVol = self.fromVol
+            settings.toVol = self.toVol
         }
-        else if self.toField.text != ""{
-            direction = "from"
-            fieldDecVal = Double(self.toField.text!)!
-            self.fromField.text = String(convert(fieldDecVal))
-        }
-        else if self.fromField.text != ""{
-            direction = "to"
-            fieldDecVal = Double(self.fromField.text!)!
-            self.toField.text = String(convert(fieldDecVal))
-        }
-        self.dismissKeyboard()
     }
     
-    func convert(_ fieldVal: Double) -> Double {
-        if mode == CalculatorMode.Length {
-            if direction == "from" {
-                var lenKey = LengthConversionKey(toUnits: LengthUnit(rawValue: self.fromUnits.text!)!, fromUnits: LengthUnit(rawValue: self.toUnits.text!)!)
-                return fieldVal * lengthConversionTable[lenKey]!
+    func settingsChanged(fromUnits: LengthUnit, toUnits: LengthUnit) {
+        if(cancel == false){
+                self.toLen = toUnits
+                self.fromLen = fromUnits
+                fromField.placeholder = "Enter a length in \(self.fromLen)"
+                toField.placeholder = "Enter a length in \(self.toLen)"
+                self.fromUnits.text = "\(self.fromLen)"
+                self.toUnits.text = "\(self.toLen)"
             }
-            else if direction == "to" {
-                var lenKey = LengthConversionKey(toUnits: LengthUnit(rawValue: self.toUnits.text!)!, fromUnits: LengthUnit(rawValue: self.fromUnits.text!)!)
-                return fieldVal * lengthConversionTable[lenKey]!
-            }
-        }
-        else if mode == CalculatorMode.Volume {
-            if direction == "from" {
-                var volKey = VolumeConversionKey(toUnits: VolumeUnit(rawValue: self.fromUnits.text!)!, fromUnits: VolumeUnit(rawValue: self.toUnits.text!)!)
-                return fieldVal * volumeConversionTable[volKey]!
-            }
-            else if direction == "to" {
-                var volKey = VolumeConversionKey(toUnits: VolumeUnit(rawValue: self.toUnits.text!)!, fromUnits: VolumeUnit(rawValue: self.fromUnits.text!)!)
-                return fieldVal * volumeConversionTable[volKey]!
-            }
-        }
-        return fieldVal
     }
-  
+    
+    
+    func settingsChanged(fromUnits: VolumeUnit, toUnits: VolumeUnit) {
+        if(cancel == false){
+            self.toVol = toUnits
+            self.fromVol = fromUnits
+            fromField.placeholder = "Enter a Volume in \(self.fromVol)"
+            toField.placeholder = "Enter a Volume in \(self.toVol)"
+            self.fromUnits.text = "\(self.fromVol)"
+            self.toUnits.text = "\(self.toVol)"
+        }
+    }
     @IBAction func cancel(segue: UIStoryboardSegue) {
         cancel = true;
     }
@@ -104,23 +127,16 @@ class ViewController: UIViewController, UITextFieldDelegate, SettingsViewControl
         cancel = false;
     }
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        
-//        let detectFocus = UITapGestureRecognizer(target: self, action:
-//            #selector(self.clearField(_:)))
-//        self.fromField.addGestureRecognizer(detectFocus)
-//        self.toField.addGestureRecognizer(detectFocus)
-        
-        
-        
-        let detectTouch = UITapGestureRecognizer(target: self, action:
-            #selector(self.dismissKeyboard))
-        self.view.addGestureRecognizer(detectTouch)
-        
-        toField.delegate = self
-        fromField.delegate = self
+        self.fromField.clearsOnBeginEditing = true
+        self.toField.clearsOnBeginEditing = true
+    
+        let detectTouch: UIGestureRecognizer = UITapGestureRecognizer(target: self, action:
+            #selector(UIInputViewController.dismissKeyboard))
+        view.addGestureRecognizer(detectTouch)
     }
     
     @objc func clearField(_ sender: UITapGestureRecognizer) {
@@ -132,8 +148,16 @@ class ViewController: UIViewController, UITextFieldDelegate, SettingsViewControl
         }
     }
     
+    @IBAction func fromBeganEditing(_ sender: Any) {
+        self.toUnits.text = ""
+    }
+    
+    @IBAction func tobeganEditing(_ sender: Any) {
+        self.fromUnits.text = ""
+    }
+    
     @objc func dismissKeyboard() {
-        self.view.endEditing(true)
+        view.endEditing(true)
     }
     
     

@@ -27,8 +27,8 @@ class SettingsViewController: UIViewController{
     var selection: String = ""
     var toLen: LengthUnit?
     var fromLen: LengthUnit?
-    var toVol: LengthUnit?
-    var fromVol: LengthUnit?
+    var toVol: VolumeUnit?
+    var fromVol: VolumeUnit?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,9 +54,9 @@ class SettingsViewController: UIViewController{
         self.picker.dataSource = self
         self.fromUnitsSelected.isUserInteractionEnabled = true
         self.toUnitsSelected.isUserInteractionEnabled = true
-        var fromClickGesture = UITapGestureRecognizer(target: self, action: #selector(fromPicker))
-        var toClickGesture = UITapGestureRecognizer(target: self, action: #selector(toPicker))
-        var dismissAfterTap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action:  #selector(dismissPicker))
+        let fromClickGesture = UITapGestureRecognizer(target: self, action: #selector(fromPicker))
+        let toClickGesture = UITapGestureRecognizer(target: self, action: #selector(toPicker))
+        let dismissAfterTap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action:  #selector(dismissPicker))
     
         self.view.addGestureRecognizer(dismissAfterTap)
         self.fromUnitsSelected.addGestureRecognizer(fromClickGesture)
